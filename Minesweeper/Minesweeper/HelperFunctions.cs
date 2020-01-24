@@ -4,9 +4,9 @@ using System.Windows.Forms;
 
 namespace Minesweeper
 {
-  class HelperFunctions
+  public class HelperFunctions
   {
-    public MineSweeperButton findButton(Panel mineButtonPanel, int i, int j)
+    public MineSweeperButton FindButton(Panel mineButtonPanel, int i, int j)
     {
       MineSweeperButton thisBtn = new MineSweeperButton();
       foreach (Control control in mineButtonPanel.Controls)
@@ -25,7 +25,7 @@ namespace Minesweeper
       {
         for (int j = 0; j < NUM_COLS; j++)
         {
-          MineSweeperButton b = findButton(currentMineButtonPanel, i, j);
+          MineSweeperButton b = FindButton(currentMineButtonPanel, i, j);
           if (rgBoard[i, j] == 'G')
           {
             b.BackColor = Color.Green;
@@ -69,7 +69,7 @@ namespace Minesweeper
       {
         for (int j = 0; j < NUM_COLS; j++)
         {
-          MineSweeperButton b = findButton(curMineButtonPanel, i, j);
+          MineSweeperButton b = FindButton(curMineButtonPanel, i, j);
           if (flagHere[i, j]) flagCounter++;
           else if (!b.Enabled && !flagHere[i, j]) clickedButtonCounter++;
         }
@@ -79,37 +79,35 @@ namespace Minesweeper
       else return false;
     }
 
-    public void ZeroBFS(int NUM_ROWS, int NUM_COLS, Point curLoc, ref Panel curMineButtonPanel, int[,] mineCount, ref char[,] userState)
+    public void GetZeroButtonsThroughBFS(int num_rows, int num_cols, MineSweeperButton curButton, int[,] mineCount, Panel curMineButtonPanel, ref char[,] userState)
     {
-      bool[,] beenHere = new bool[NUM_ROWS, NUM_COLS];
-      beenHere[curLoc.x, curLoc.y] = true;
+      bool[,] beenHere = new bool[num_rows, num_cols];
+      List<MineSweeperButton> results = new List<MineSweeperButton>();
       Queue<Point> q = new Queue<Point>();
-      q.Enqueue(curLoc);
+      q.Enqueue(new Point(curButton.x, curButton.y));
 
       while (q.Count != 0)
       {
         Point curSearchPt = q.Dequeue();
 
-        List<Point> surroundingPts = GetSurroundingPointsInBounds(NUM_ROWS, NUM_COLS, curSearchPt);
+        List<Point> surroundingPts = GetSurroundingPointsInBounds(num_rows, num_cols, curSearchPt);
 
-        foreach (Point p in surroundingPts)
+        foreach (Point surroundingPt in surroundingPts)
+          if (mineCount[surroundingPt.x, surroundingPt.y] == 0 && !beenHere[curSearchPt.x, curSearchPt.y]) q.Enqueue(surroundingPt);
+
+        foreach (Point surroundingPt in surroundingPts)
         {
-          MineSweeperButton b = findButton(curMineButtonPanel, p.x, p.y);
+          MineSweeperButton b = FindButton(curMineButtonPanel, surroundingPt.x, surroundingPt.y);
 
-          if (mineCount[p.x, p.y] == 0)
-          {
-            if (!beenHere[p.x, p.y]) q.Enqueue(p);
-          }
-          else
-          {
-            b.Text = mineCount[p.x, p.y].ToString();
-          }
+          // if the mine count is not zero, put that text in the button.
+          if (mineCount[surroundingPt.x, surroundingPt.y] != 0) b.Text = mineCount[surroundingPt.x, surroundingPt.y].ToString();
 
-          if (mineCount[p.x, p.y] == 0) b.BackColor = Color.White;
+          b.BackColor = Color.Gray;
           b.Enabled = false;
-          beenHere[p.x, p.y] = true;
-          userState[p.x, p.y] = mineCount[p.x, p.y].ToString()[0];
+          userState[surroundingPt.x, surroundingPt.y] = mineCount[surroundingPt.x, surroundingPt.y].ToString()[0];
         }
+
+        beenHere[curSearchPt.x, curSearchPt.y] = true;
       }
     }
   }

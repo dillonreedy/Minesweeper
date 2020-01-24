@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -122,7 +121,7 @@ namespace Minesweeper
       {
         for (int j = 0; j < NUM_COLS; j++)
         {
-          MineSweeperButton thisBtn = _helperFunctions.findButton(mineButtonPanel, i, j);
+          MineSweeperButton thisBtn = _helperFunctions.FindButton(mineButtonPanel, i, j);
 
           if (isMineHere[i, j]) thisBtn.Image = Properties.Resources.mine;
 
@@ -139,7 +138,7 @@ namespace Minesweeper
       {
         for (int j = 0; j < NUM_COLS; j++)
         {
-          MineSweeperButton b = _helperFunctions.findButton(mineButtonPanel, i, j);
+          MineSweeperButton b = _helperFunctions.FindButton(mineButtonPanel, i, j);
           b.Enabled = false;
         }
       }
@@ -155,7 +154,7 @@ namespace Minesweeper
         else
         {
           if (mineCount[b.x, b.y] == 0) // Should we perform a zero breadth first search?
-            _helperFunctions.ZeroBFS(NUM_ROWS, NUM_COLS, new Point(b.x, b.y), ref mineButtonPanel, mineCount, ref userState);
+            _helperFunctions.GetZeroButtonsThroughBFS(NUM_ROWS, NUM_COLS, b, mineCount, mineButtonPanel, ref userState);
           else
           {
             b.Text = mineCount[b.x, b.y].ToString();
@@ -170,6 +169,7 @@ namespace Minesweeper
           else
           {
             RedGreenBoard rgBoard = new RedGreenBoard(NUM_ROWS, NUM_COLS, userState);
+            rgBoard.CleanButtonPanel(ref mineButtonPanel);
             _helperFunctions.ColorPanel(NUM_ROWS, NUM_COLS, rgBoard.GetRedGreenBoard(), ref mineButtonPanel);
           }
         }
@@ -189,6 +189,10 @@ namespace Minesweeper
         b.Image = null;
         flagHere[b.x, b.y] = false;
       }
+
+      RedGreenBoard rgBoard = new RedGreenBoard(NUM_ROWS, NUM_COLS, userState);
+      rgBoard.CleanButtonPanel(ref mineButtonPanel);
+      _helperFunctions.ColorPanel(NUM_ROWS, NUM_COLS, rgBoard.GetRedGreenBoard(), ref mineButtonPanel);
     }
     #endregion
   }

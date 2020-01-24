@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace Minesweeper
 {
@@ -28,6 +30,13 @@ namespace Minesweeper
     {
       List<Point> numberedPts = new List<Point>();
 
+      // Clean any numbered locations that have been revealed
+
+      for (int i = 0; i < R; i++)
+      { 
+        
+      }
+
       for (int i = 0; i < R; i++)
       {
         for (int j = 0; j < C; j++)
@@ -51,12 +60,21 @@ namespace Minesweeper
         foreach (Point p in numberedPts)
         {
           List<Point> surroundingPts = _helperFunctions.GetSurroundingPointsInBounds(R, C, p);
-          int numOnBoard = Int32.Parse(board[p.x, p.y] + String.Empty);
-          int numUnknownPts = CountNumberOfCharOnBoard(surroundingPts, 'U');
-          int numMinePts = CountNumberOfCharOnBoard(surroundingPts, 'R');
 
-          if (numOnBoard == numMinePts && numUnknownPts > 0) MarkAllPointsWithChar(surroundingPts, 'G', ref changed);
-          if (numOnBoard == (numUnknownPts + numMinePts)) MarkAllPointsWithChar(surroundingPts, 'R', ref changed);
+          List<Point> filteredSurroundingPts = new List<Point>();
+
+          foreach (Point surroundingPt in surroundingPts)
+          {
+            string digits = "12345678";
+            if (!digits.Contains(board[surroundingPt.x, surroundingPt.y] + String.Empty)) filteredSurroundingPts.Add(surroundingPt);
+          }
+
+          int numOnBoard = Int32.Parse(board[p.x, p.y] + String.Empty);
+          int numUnknownPts = CountNumberOfCharOnBoard(filteredSurroundingPts, 'U');
+          int numMinePts = CountNumberOfCharOnBoard(filteredSurroundingPts, 'R');
+
+          if (numOnBoard == numMinePts && numUnknownPts > 0) MarkAllPointsWithChar(filteredSurroundingPts, 'G', ref changed);
+          if (numOnBoard == (numUnknownPts + numMinePts)) MarkAllPointsWithChar(filteredSurroundingPts, 'R', ref changed);
         }
       }
 
@@ -88,6 +106,23 @@ namespace Minesweeper
         if (board[p.x, p.y] == ch) chCount++;
 
       return chCount;
+    }
+
+    internal void CleanButtonPanel(ref Panel mineButtonPanel)
+    {
+      for (int i = 0; i < R; i++)
+      {
+        for (int j = 0; j < C; j++)
+        {
+          if (board[i, j] != 'U')
+          {
+            MineSweeperButton b = _helperFunctions.FindButton(mineButtonPanel, i, j);
+
+            b.BackColor = Color.Gray;
+          }
+        }
+      }
+
     }
   }
 }
