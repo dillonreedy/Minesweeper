@@ -53,7 +53,7 @@ namespace Minesweeper
       return surroundingPts;
     }
 
-    public bool IsEndGame_Win(int NUM_ROWS, int NUM_COLS, int NUM_MINES, ref Panel curMineButtonPanel, bool[,] flagHere)
+    public bool IsEndGame_Win(int NUM_ROWS, int NUM_COLS, int NUM_MINES, Panel curMineButtonPanel, bool[,] flagHere)
     {
       int flagCounter = 0;
       int clickedButtonCounter = 0;

@@ -8,6 +8,7 @@ namespace Minesweeper
     private readonly int R;
     private readonly int C;
     private readonly char[,] board;
+    private HelperFunctions _helperFunctions = new HelperFunctions();
 
     public RedGreenBoard(int givenR, int givenC, char[,] givenBoard)
     {
@@ -49,7 +50,7 @@ namespace Minesweeper
         changed = false;
         foreach (Point p in numberedPts)
         {
-          List<Point> surroundingPts = GetSurroundingPointsInBounds(p);
+          List<Point> surroundingPts = _helperFunctions.GetSurroundingPointsInBounds(R, C, p);
           int numOnBoard = Int32.Parse(board[p.x, p.y] + String.Empty);
           int numUnknownPts = CountNumberOfCharOnBoard(surroundingPts, 'U');
           int numMinePts = CountNumberOfCharOnBoard(surroundingPts, 'R');
@@ -87,27 +88,6 @@ namespace Minesweeper
         if (board[p.x, p.y] == ch) chCount++;
 
       return chCount;
-    }
-
-    public List<Point> GetSurroundingPointsInBounds(Point curPt)
-    {
-      List<Point> surroundingPts = new List<Point>();
-      int[] xs = { 1, 1, 1, 0, 0, -1, -1, -1 };
-      int[] ys = { 1, 0, -1, 1, -1, 1, 0, -1 };
-
-      for (int i = 0; i < xs.Length; i++)
-      {
-        Point testPt = new Point(curPt.x + xs[i], curPt.y + ys[i]);
-
-        if (InBounds(testPt)) surroundingPts.Add(testPt);
-      }
-
-      return surroundingPts;
-    }
-
-    public bool InBounds(Point p)
-    {
-      return (0 <= p.x && p.x < R && 0 <= p.y && p.y < C);
     }
   }
 }

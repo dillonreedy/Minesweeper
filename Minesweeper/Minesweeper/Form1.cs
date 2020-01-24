@@ -164,7 +164,7 @@ namespace Minesweeper
           else _helperFunctions.ZeroBFS(NUM_ROWS, NUM_COLS, curLoc, ref mineButtonPanel, mineCount, ref userState);
 
           b.Enabled = false;
-          if (_helperFunctions.IsEndGame_Win(NUM_ROWS, NUM_COLS, NUM_MINES, ref mineButtonPanel, flagHere)) EndGame_Win();
+          if (_helperFunctions.IsEndGame_Win(NUM_ROWS, NUM_COLS, NUM_MINES, mineButtonPanel, flagHere)) EndGame_Win();
           else
           {
             RedGreenBoard rgBoard = new RedGreenBoard(NUM_ROWS, NUM_COLS, userState);
@@ -182,7 +182,7 @@ namespace Minesweeper
       {
         b.Image = Properties.Resources.flag;
         flagHere[curLoc.x, curLoc.y] = true;
-        if (_helperFunctions.IsEndGame_Win(NUM_ROWS, NUM_COLS, NUM_MINES, ref mineButtonPanel, flagHere)) EndGame_Win();
+        if (_helperFunctions.IsEndGame_Win(NUM_ROWS, NUM_COLS, NUM_MINES, mineButtonPanel, flagHere)) EndGame_Win();
       }
       else
       {
