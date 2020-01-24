@@ -19,11 +19,6 @@ namespace Minesweeper
       return thisBtn;
     }
 
-    public Point getPointFromButton(Button b)
-    {
-      return new Point(b.Top / Constants.MINE_BUTTON_SIZE_X, b.Left / Constants.MINE_BUTTON_SIZE_Y);
-    }
-
     public void ColorPanel(int NUM_ROWS, int NUM_COLS, char[,] rgBoard, ref Panel currentMineButtonPanel)
     {
       for (int i = 0; i < NUM_ROWS; i++)

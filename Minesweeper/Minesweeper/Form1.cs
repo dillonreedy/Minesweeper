@@ -37,10 +37,10 @@ namespace Minesweeper
       switch (e.Button)
       {
         case MouseButtons.Left:
-          LeftMouseButtonClick(((Button)sender));
+          LeftMouseButtonClick(((MineSweeperButton)sender));
           break;
         case MouseButtons.Right:
-          RightMouseButtonClick(((Button)sender));
+          RightMouseButtonClick(((MineSweeperButton)sender));
           break;
       }
     }
@@ -79,7 +79,7 @@ namespace Minesweeper
 
       InitializeMineButtonPanel(); // Fills the button panel with buttons based on the number of rows and columns input by the user
       isMineHere = _initializationFunctions.InitializeMineLocationBoard(NUM_ROWS, NUM_COLS, NUM_MINES);
-      mineCount = _initializationFunctions.InitializeMineCountBoard(NUM_ROWS, NUM_COLS, NUM_MINES, isMineHere);
+      mineCount = _initializationFunctions.InitializeMineCountBoard(NUM_ROWS, NUM_COLS, isMineHere);
       userState = _initializationFunctions.InitializeUserStateBoard(NUM_ROWS, NUM_COLS);
       flagHere = new bool[NUM_ROWS, NUM_COLS];
     }
@@ -147,24 +147,22 @@ namespace Minesweeper
     #endregion
 
     #region MouseButtonClickLogic
-    public void LeftMouseButtonClick(Button b)
+    public void LeftMouseButtonClick(MineSweeperButton b)
     {
-      Point curLoc = _helperFunctions.getPointFromButton(b);
-
-      if (!flagHere[curLoc.x, curLoc.y])
+      if (!flagHere[b.x, b.y])
       {
-        if (isMineHere[curLoc.x, curLoc.y]) EndGame_Loss(b); // User clicked on a mine, they lost.
+        if (isMineHere[b.x, b.y]) EndGame_Loss(b); // User clicked on a mine, they lost.
         else
         {
-          if (mineCount[curLoc.x, curLoc.y] == 0) // Should we perform a zero breadth first search?
-            _helperFunctions.ZeroBFS(NUM_ROWS, NUM_COLS, curLoc, ref mineButtonPanel, mineCount, ref userState);
+          if (mineCount[b.x, b.y] == 0) // Should we perform a zero breadth first search?
+            _helperFunctions.ZeroBFS(NUM_ROWS, NUM_COLS, new Point(b.x, b.y), ref mineButtonPanel, mineCount, ref userState);
           else
           {
-            b.Text = mineCount[curLoc.x, curLoc.y].ToString();
+            b.Text = mineCount[b.x, b.y].ToString();
             b.BackColor = Color.Gray;
             b.Enabled = false;
 
-            userState[curLoc.x, curLoc.y] = mineCount[curLoc.x, curLoc.y].ToString()[0];
+            userState[b.x, b.y] = mineCount[b.x, b.y].ToString()[0];
           }
 
 
@@ -178,20 +176,18 @@ namespace Minesweeper
       }
     }
 
-    public void RightMouseButtonClick(Button b)
+    public void RightMouseButtonClick(MineSweeperButton b)
     {
-      Point curLoc = _helperFunctions.getPointFromButton(b);
-
-      if (!flagHere[curLoc.x, curLoc.y])
+      if (!flagHere[b.x, b.y])
       {
         b.Image = Properties.Resources.flag;
-        flagHere[curLoc.x, curLoc.y] = true;
+        flagHere[b.x, b.y] = true;
         if (_helperFunctions.IsEndGame_Win(NUM_ROWS, NUM_COLS, NUM_MINES, mineButtonPanel, flagHere)) EndGame_Win();
       }
       else
       {
         b.Image = null;
-        flagHere[curLoc.x, curLoc.y] = false;
+        flagHere[b.x, b.y] = false;
       }
     }
     #endregion

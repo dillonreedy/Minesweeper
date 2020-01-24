@@ -31,7 +31,7 @@ namespace Minesweeper
       return isMineHere;
     }
 
-    public int[,] InitializeMineCountBoard(int NUM_ROWS, int NUM_COLS, int NUM_MINES, bool[,] isMineHere)
+    public int[,] InitializeMineCountBoard(int NUM_ROWS, int NUM_COLS, bool[,] isMineHere)
     {
       int[,] mineCount = new int[NUM_ROWS, NUM_COLS];
 
