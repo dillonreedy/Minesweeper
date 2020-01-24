@@ -10,11 +10,12 @@ namespace Minesweeper
     #region Private Variables
 
     private int NUM_COLS, NUM_ROWS, NUM_MINES;
-    private char[,] mineLocations;
+    private bool[,] isMineHere;
     private char[,] userState;
     private int[,] mineCount;
     private bool[,] flagHere;
     private HelperFunctions _helperFunctions;
+    private InitializationFunctions _initializationFunctions;
     #endregion
 
     #region Form Constructor
@@ -22,6 +23,7 @@ namespace Minesweeper
     {
       InitializeComponent();
       _helperFunctions = new HelperFunctions();
+      _initializationFunctions = new InitializationFunctions();
       OnNewGameInitialization();
     }
     #endregion
@@ -69,21 +71,17 @@ namespace Minesweeper
     #region Initialization Methods
     public void OnNewGameInitialization()
     {
-      InitializePrivateVariables();
-      InitializeMineButtonPanel(); // Fills the button panel with buttons based on the number of rows and columns input by the user
-      InitializeMineLocationBoard();
-      InitializeMineCountBoard();
-      InitializeUserStateBoard();
-      flagHere = new bool[NUM_ROWS, NUM_COLS];
-    }
-
-    public void InitializePrivateVariables()
-    {
       btnPlayerState.Text = Constants.USER_PLAYING;
       numUpDownMines.Maximum = (numUpDownCols.Value * numUpDownRows.Value) - 1;
       NUM_COLS = Int32.Parse(numUpDownCols.Value.ToString());
       NUM_ROWS = Int32.Parse(numUpDownRows.Value.ToString());
       NUM_MINES = Int32.Parse(numUpDownMines.Value.ToString());
+
+      InitializeMineButtonPanel(); // Fills the button panel with buttons based on the number of rows and columns input by the user
+      isMineHere = _initializationFunctions.InitializeMineLocationBoard(NUM_ROWS, NUM_COLS, NUM_MINES);
+      mineCount = _initializationFunctions.InitializeMineCountBoard(NUM_ROWS, NUM_COLS, NUM_MINES, isMineHere);
+      userState = _initializationFunctions.InitializeUserStateBoard(NUM_ROWS, NUM_COLS);
+      flagHere = new bool[NUM_ROWS, NUM_COLS];
     }
 
     public void InitializeMineButtonPanel()
@@ -96,65 +94,19 @@ namespace Minesweeper
       {
         for (int j = 0; j < NUM_COLS; j++)
         {
-          Button b = new Button();
-          b.Enabled = true;
-          b.Name = i.ToString() + j.ToString();
-          b.Width = Constants.MINE_BUTTON_SIZE_X;
-          b.Height = Constants.MINE_BUTTON_SIZE_Y;
-          b.Top = i * Constants.MINE_BUTTON_SIZE_Y;
-          b.Left = j * Constants.MINE_BUTTON_SIZE_X;
+          Button b = new Button
+          {
+            Enabled = true,
+            Name = i.ToString() + j.ToString(),
+            Width = Constants.MINE_BUTTON_SIZE_X,
+            Height = Constants.MINE_BUTTON_SIZE_Y,
+            Top = i * Constants.MINE_BUTTON_SIZE_Y,
+            Left = j * Constants.MINE_BUTTON_SIZE_X
+          };
           b.MouseDown += btnMine_MouseDown;
           mineButtonPanel.Controls.Add(b);
         }
       }
-    }
-
-    public void InitializeMineLocationBoard()
-    {
-      mineLocations = new char[NUM_ROWS, NUM_COLS];
-      for (int i = 0; i < NUM_ROWS; i++)
-        for (int j = 0; j < NUM_COLS; j++)
-          mineLocations[i, j] = 'E';
-
-      int numMinesLeft = NUM_MINES;
-      Random r = new Random();
-      while (numMinesLeft != 0)
-      {
-        int row = r.Next(NUM_ROWS);
-        int col = r.Next(NUM_COLS);
-        if (mineLocations[row, col].Equals('E'))
-        {
-          mineLocations[row, col] = 'M';
-          numMinesLeft--;
-        }
-      }
-    }
-
-    public void InitializeMineCountBoard()
-    {
-      mineCount = new int[NUM_ROWS, NUM_COLS];
-
-      for (int i = 0; i < NUM_ROWS; i++)
-      {
-        for (int j = 0; j < NUM_COLS; j++)
-        {
-          Point curLoc = new Point(i, j);
-          List<Point> surroundingPts = _helperFunctions.GetSurroundingPointsInBounds(NUM_ROWS, NUM_COLS, curLoc);
-          int mineCounter = 0;
-
-          foreach (Point p in surroundingPts) if (mineLocations[p.x, p.y].Equals('M')) mineCounter++;
-
-          mineCount[curLoc.x, curLoc.y] = mineCounter;
-        }
-      }
-    }
-
-    public void InitializeUserStateBoard()
-    {
-      userState = new char[NUM_ROWS, NUM_COLS];
-      for (int i = 0; i < NUM_ROWS; i++)
-        for (int j = 0; j < NUM_COLS; j++)
-          userState[i, j] = 'U';
     }
     #endregion
 
@@ -170,7 +122,7 @@ namespace Minesweeper
         for (int j = 0; j < NUM_COLS; j++)
         {
           Button thisBtn = ((Button)mineButtonPanel.Controls[i.ToString() + j.ToString()]);
-          if (mineLocations[i, j].Equals('M'))
+          if (isMineHere[i, j])
           {
             thisBtn.Image = Properties.Resources.mine;
           }
@@ -201,13 +153,12 @@ namespace Minesweeper
 
       if (!flagHere[curLoc.x, curLoc.y])
       {
-        if (mineLocations[curLoc.x, curLoc.y] == 'M') EndGame_Loss(b);
+        if (isMineHere[curLoc.x, curLoc.y]) EndGame_Loss(b);
         else
         {
           if (mineCount[curLoc.x, curLoc.y] != 0)
           {
             b.Text = mineCount[curLoc.x, curLoc.y].ToString();
-            b.BackColor = Color.Gray;
             userState[curLoc.x, curLoc.y] = mineCount[curLoc.x, curLoc.y].ToString()[0];
           }
           else _helperFunctions.ZeroBFS(NUM_ROWS, NUM_COLS, curLoc, ref mineButtonPanel, mineCount, ref userState);

@@ -95,7 +95,8 @@ namespace Minesweeper
           {
             b.Text = mineCount[p.x, p.y].ToString();
           }
-          b.BackColor = Color.Gray;
+
+          if (mineCount[p.x, p.y] == 0) b.BackColor = Color.White;
           b.Enabled = false;
           beenHere[p.x, p.y] = true;
           userState[p.x, p.y] = mineCount[p.x, p.y].ToString()[0];
