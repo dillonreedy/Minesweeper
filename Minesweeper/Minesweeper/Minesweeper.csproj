@@ -55,6 +55,9 @@
     </Compile>
     <Compile Include="HelperFunctions.cs" />
     <Compile Include="InitializationFunctions.cs" />
+    <Compile Include="MineSweeperButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Point.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

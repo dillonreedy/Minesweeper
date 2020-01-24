@@ -94,17 +94,19 @@ namespace Minesweeper
       {
         for (int j = 0; j < NUM_COLS; j++)
         {
-          Button b = new Button
+          MineSweeperButton msb = new MineSweeperButton
           {
             Enabled = true,
+            x = i,
+            y = j,
             Name = i.ToString() + j.ToString(),
             Width = Constants.MINE_BUTTON_SIZE_X,
             Height = Constants.MINE_BUTTON_SIZE_Y,
             Top = i * Constants.MINE_BUTTON_SIZE_Y,
             Left = j * Constants.MINE_BUTTON_SIZE_X
           };
-          b.MouseDown += btnMine_MouseDown;
-          mineButtonPanel.Controls.Add(b);
+          msb.MouseDown += btnMine_MouseDown;
+          mineButtonPanel.Controls.Add(msb);
         }
       }
     }
@@ -115,17 +117,15 @@ namespace Minesweeper
     public void EndGame_Loss(Button b)
     {
       btnPlayerState.Text = Constants.USER_LOSES;
-      b.BackColor = Color.Red;
 
       for (int i = 0; i < NUM_ROWS; i++)
       {
         for (int j = 0; j < NUM_COLS; j++)
         {
-          Button thisBtn = ((Button)mineButtonPanel.Controls[i.ToString() + j.ToString()]);
-          if (isMineHere[i, j])
-          {
-            thisBtn.Image = Properties.Resources.mine;
-          }
+          MineSweeperButton thisBtn = _helperFunctions.findButton(mineButtonPanel, i, j);
+
+          if (isMineHere[i, j]) thisBtn.Image = Properties.Resources.mine;
+
           thisBtn.Enabled = false;
         }
       }
@@ -139,7 +139,7 @@ namespace Minesweeper
       {
         for (int j = 0; j < NUM_COLS; j++)
         {
-          Button b = ((Button)mineButtonPanel.Controls[i.ToString() + j.ToString()]);
+          MineSweeperButton b = _helperFunctions.findButton(mineButtonPanel, i, j);
           b.Enabled = false;
         }
       }
@@ -153,17 +153,21 @@ namespace Minesweeper
 
       if (!flagHere[curLoc.x, curLoc.y])
       {
-        if (isMineHere[curLoc.x, curLoc.y]) EndGame_Loss(b);
+        if (isMineHere[curLoc.x, curLoc.y]) EndGame_Loss(b); // User clicked on a mine, they lost.
         else
         {
-          if (mineCount[curLoc.x, curLoc.y] != 0)
+          if (mineCount[curLoc.x, curLoc.y] == 0) // Should we perform a zero breadth first search?
+            _helperFunctions.ZeroBFS(NUM_ROWS, NUM_COLS, curLoc, ref mineButtonPanel, mineCount, ref userState);
+          else
           {
             b.Text = mineCount[curLoc.x, curLoc.y].ToString();
+            b.BackColor = Color.Gray;
+            b.Enabled = false;
+
             userState[curLoc.x, curLoc.y] = mineCount[curLoc.x, curLoc.y].ToString()[0];
           }
-          else _helperFunctions.ZeroBFS(NUM_ROWS, NUM_COLS, curLoc, ref mineButtonPanel, mineCount, ref userState);
 
-          b.Enabled = false;
+
           if (_helperFunctions.IsEndGame_Win(NUM_ROWS, NUM_COLS, NUM_MINES, mineButtonPanel, flagHere)) EndGame_Win();
           else
           {

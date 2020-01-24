@@ -6,6 +6,19 @@ namespace Minesweeper
 {
   class HelperFunctions
   {
+    public MineSweeperButton findButton(Panel mineButtonPanel, int i, int j)
+    {
+      MineSweeperButton thisBtn = new MineSweeperButton();
+      foreach (Control control in mineButtonPanel.Controls)
+      {
+        var temp = ((MineSweeperButton)control);
+        if (temp.x == i && temp.y == j)
+          thisBtn = temp;
+      }
+
+      return thisBtn;
+    }
+
     public Point getPointFromButton(Button b)
     {
       return new Point(b.Top / Constants.MINE_BUTTON_SIZE_X, b.Left / Constants.MINE_BUTTON_SIZE_Y);
@@ -17,7 +30,7 @@ namespace Minesweeper
       {
         for (int j = 0; j < NUM_COLS; j++)
         {
-          Button b = ((Button)currentMineButtonPanel.Controls[i.ToString() + j.ToString()]);
+          MineSweeperButton b = findButton(currentMineButtonPanel, i, j);
           if (rgBoard[i, j] == 'G')
           {
             b.BackColor = Color.Green;
@@ -61,7 +74,7 @@ namespace Minesweeper
       {
         for (int j = 0; j < NUM_COLS; j++)
         {
-          Button b = ((Button)curMineButtonPanel.Controls[i.ToString() + j.ToString()]);
+          MineSweeperButton b = findButton(curMineButtonPanel, i, j);
           if (flagHere[i, j]) flagCounter++;
           else if (!b.Enabled && !flagHere[i, j]) clickedButtonCounter++;
         }
@@ -86,7 +99,8 @@ namespace Minesweeper
 
         foreach (Point p in surroundingPts)
         {
-          Button b = ((Button)curMineButtonPanel.Controls[p.x.ToString() + p.y.ToString()]);
+          MineSweeperButton b = findButton(curMineButtonPanel, p.x, p.y);
+
           if (mineCount[p.x, p.y] == 0)
           {
             if (!beenHere[p.x, p.y]) q.Enqueue(p);
